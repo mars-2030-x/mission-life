@@ -32,7 +32,7 @@ const Dashboard = {
         const meditationState = Meditation && Meditation.isRunning
             ? {
                 type: 'meditation',
-                label: `🧘 명상 ${Meditation.isPaused ? '일시정지' : '진행 중'}`,
+                label: `명상 ${Meditation.isPaused ? '일시정지' : '진행 중'}`,
                 time: this._formatSeconds(Meditation.elapsed || 0)
             }
             : null;
@@ -91,7 +91,7 @@ const Dashboard = {
         const timerEl = document.getElementById(`timer-${runningId}`);
         return {
             type: 'mission',
-            label: `⚔️ ${mission.title} 진행 중`,
+            label: `${mission.title} 진행 중`,
             time: timerEl?.textContent?.replace('⏱ ', '') || '00:00'
         };
     },
@@ -187,7 +187,7 @@ const Dashboard = {
         }
 
         if (pending.length === 0) {
-            info.innerHTML = `<p class="next-mission-empty" style="color:var(--accent-green);">다음 미션: 오늘 미션을 모두 완료했어요! 🎉</p>`;
+            info.innerHTML = `<p class="next-mission-empty" style="color:var(--accent-green);">다음 미션: 오늘 미션을 모두 완료했습니다.</p>`;
             return;
         }
 
@@ -199,7 +199,6 @@ const Dashboard = {
 
         info.innerHTML = `
             <div style="display:flex;align-items:center;gap:12px;">
-                <div style="font-size:28px;">⚡</div>
                 <div>
                     <div style="font-weight:700;font-size:15px;">${next.title}</div>
                     <div style="font-size:12px;color:var(--text-muted);">${next.scheduledTime || '미정'} · +${next.expReward || 0} EXP</div>
@@ -275,7 +274,7 @@ const Dashboard = {
                 <span class="heatmap-rate">${total > 0 ? `${completed}/${total}` : '미션 없음'}</span>
             `;
             cell.addEventListener('click', () => {
-                alert(`${dateStr}\n완료 ${completed}/${total}`);
+                location.hash = '#today';
             });
             container.appendChild(cell);
         }

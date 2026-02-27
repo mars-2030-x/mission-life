@@ -411,7 +411,7 @@ const Missions = {
             delete this.timerStartedAt[missionId];
         }
 
-        const note = prompt('완료 기록 한 줄(선택)');
+        const note = prompt('완료 메모 (선택)');
         if (note && note.trim()) {
             const mission = store.getMission(missionId);
             const logs = mission.completionNotes || [];

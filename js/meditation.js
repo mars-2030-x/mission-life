@@ -129,7 +129,7 @@ const Meditation = {
         // Show after modal
         const min = Math.floor(this.elapsed / 60);
         const sec = this.elapsed % 60;
-        document.getElementById('medCompleteDuration').textContent = `${min}분 ${sec}초 명상했어요 🙏`;
+        document.getElementById('medCompleteDuration').textContent = `${min}분 ${sec}초 명상 완료`;
         this.focusRating = 0;
         this.updateStars();
         document.getElementById('medMemo').value = '';

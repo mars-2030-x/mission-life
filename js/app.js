@@ -69,7 +69,7 @@ const App = {
                 }
                 if (action === 'add-record') {
                     location.hash = '#today';
-                    const note = prompt('기록 한 줄 남기기');
+                    const note = prompt('기록 메모를 입력하세요');
                     if (note && note.trim()) {
                         localStorage.setItem('ml_lastQuickRecord', note.trim());
                     }

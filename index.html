@@ -85,6 +85,10 @@
                 <p class="page-subtitle" id="dashboardDate"></p>
             </div>
             <div class="dashboard-grid">
+                <div class="card card-today" id="todayCard">
+                    <div class="card-label">☀️ 오늘 카드</div>
+                    <div id="todayCardContent"></div>
+                </div>
                 <div class="card card-level" id="levelCard">
                     <div class="card-glow"></div>
                     <div class="level-info">
@@ -126,21 +130,21 @@
             <div class="plan-container">
                 <div class="plan-column">
                     <div class="plan-column-header">
-                        <h2>🏰 Boss Mission <span class="plan-period">월간</span></h2>
+                        <h2>🏰 보스 미션 <span class="plan-period">Boss Mission (월간)</span></h2>
                         <button class="btn-add" id="addBossMission">+ 추가</button>
                     </div>
                     <div class="plan-list" id="bossMissionList"></div>
                 </div>
                 <div class="plan-column">
                     <div class="plan-column-header">
-                        <h2>📖 Chapter Mission <span class="plan-period">주간</span></h2>
+                        <h2>📖 챕터 미션 <span class="plan-period">Chapter Mission (주간)</span></h2>
                         <button class="btn-add" id="addChapterMission">+ 추가</button>
                     </div>
                     <div class="plan-list" id="chapterMissionList"></div>
                 </div>
                 <div class="plan-column">
                     <div class="plan-column-header">
-                        <h2>⚡ Daily Quest <span class="plan-period">일간</span></h2>
+                        <h2>⚡ 데일리 퀘스트 <span class="plan-period">Daily Quest (일간)</span></h2>
                         <button class="btn-add" id="addDailyQuest">+ 추가</button>
                     </div>
                     <div class="plan-list" id="dailyQuestList"></div>
@@ -157,7 +161,7 @@
             <div class="today-container" id="todayMissionList">
                 <div class="empty-state">
                     <div class="empty-icon">⚔️</div>
-                    <p>오늘 수행할 Daily Quest가 없습니다.</p>
+                    <p>오늘 수행할 데일리 퀘스트가 없습니다.</p>
                     <button class="btn-primary" onclick="location.hash='#plan'">계획 페이지에서 미션 추가</button>
                 </div>
             </div>
@@ -228,7 +232,7 @@
                             <span class="star" data-val="5">★</span>
                         </div>
                     </div>
-                    <textarea id="medMemo" class="med-memo" placeholder="마음 일기를 적어보세요..."></textarea>
+                    <textarea id="medMemo" class="med-memo" placeholder="명상 기록 한 줄(선택)을 적어보세요..."></textarea>
                     <button class="btn-primary" id="btnSaveMeditation">저장</button>
                 </div>
             </div>
@@ -244,10 +248,12 @@
                 <div class="card stats-heatmap-card">
                     <h3>📅 주간 달성률</h3>
                     <div class="heatmap" id="weeklyHeatmap"></div>
+                    <div id="weeklyStatsCta"></div>
                 </div>
                 <div class="card stats-chart-card">
                     <h3>📈 월간 성장 그래프</h3>
                     <canvas id="monthlyChart" width="600" height="250"></canvas>
+                    <div id="monthlyChartCta"></div>
                 </div>
                 <div class="card stats-meditation-card">
                     <h3>🧘 명상 누적 통계</h3>
@@ -273,9 +279,9 @@
                 <div class="form-group">
                     <label for="missionType">유형</label>
                     <select id="missionType">
-                        <option value="boss">🏰 Boss Mission (월간)</option>
-                        <option value="chapter">📖 Chapter Mission (주간)</option>
-                        <option value="daily">⚡ Daily Quest (일간)</option>
+                        <option value="boss">🏰 보스 미션 (월간)</option>
+                        <option value="chapter">📖 챕터 미션 (주간)</option>
+                        <option value="daily">⚡ 데일리 퀘스트 (일간)</option>
                     </select>
                 </div>
                 <div class="form-group" id="parentMissionGroup">
@@ -318,6 +324,15 @@
                 </div>
                 <button type="submit" class="btn-primary">저장</button>
             </form>
+        </div>
+    </div>
+
+    <div class="fab-wrap">
+        <button class="fab-main" id="quickFab">＋</button>
+        <div class="fab-menu hidden" id="quickFabMenu">
+            <button class="fab-action" data-action="add-daily">데일리 퀘스트 추가</button>
+            <button class="fab-action" data-action="start-meditation">명상 시작</button>
+            <button class="fab-action" data-action="add-record">기록 남기기</button>
         </div>
     </div>
 

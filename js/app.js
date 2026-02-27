@@ -13,6 +13,7 @@ const App = {
 
         // Navigation
         this.bindNavigation();
+        this.bindQuickFab();
 
         // Hash routing
         this.route();
@@ -43,6 +44,37 @@ const App = {
             item.addEventListener('click', () => {
                 const page = item.dataset.page;
                 location.hash = '#' + page;
+            });
+        });
+    },
+
+
+
+    bindQuickFab() {
+        const fab = document.getElementById('quickFab');
+        const menu = document.getElementById('quickFabMenu');
+        if (!fab || !menu) return;
+
+        fab.addEventListener('click', () => menu.classList.toggle('hidden'));
+        menu.querySelectorAll('.fab-action').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const action = btn.dataset.action;
+                if (action === 'add-daily') {
+                    location.hash = '#today';
+                    const title = prompt('추가할 데일리 퀘스트를 입력하세요');
+                    if (title) Missions.quickAddTodayMission(title);
+                }
+                if (action === 'start-meditation') {
+                    location.hash = '#meditation';
+                }
+                if (action === 'add-record') {
+                    location.hash = '#today';
+                    const note = prompt('기록 한 줄 남기기');
+                    if (note && note.trim()) {
+                        localStorage.setItem('ml_lastQuickRecord', note.trim());
+                    }
+                }
+                menu.classList.add('hidden');
             });
         });
     },

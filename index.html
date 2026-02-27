@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mission Life — 습관 변화 & 무의식 정화</title>
+    <title>Mission Life — Plan, Focus, Reflect</title>
     <meta name="description" content="미션 기반 습관 변화 시스템. 일간/주간/월간 미션을 게임처럼 관리하고 명상으로 마음을 정화하세요.">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -37,29 +37,29 @@
     <nav class="sidebar" id="sidebar">
         <div class="sidebar-header">
             <div class="logo">
-                <span class="logo-icon">🚀</span>
+                <span class="logo-icon">ML</span>
                 <span class="logo-text">Mission Life</span>
             </div>
         </div>
         <ul class="nav-list">
             <li class="nav-item active" data-page="dashboard">
-                <span class="nav-icon">📊</span>
+                <span class="nav-icon">•</span>
                 <span class="nav-label">대시보드</span>
             </li>
             <li class="nav-item" data-page="plan">
-                <span class="nav-icon">🗺️</span>
+                <span class="nav-icon">•</span>
                 <span class="nav-label">계획</span>
             </li>
             <li class="nav-item" data-page="today">
-                <span class="nav-icon">⚔️</span>
+                <span class="nav-icon">•</span>
                 <span class="nav-label">오늘의 미션</span>
             </li>
             <li class="nav-item" data-page="meditation">
-                <span class="nav-icon">🧘</span>
+                <span class="nav-icon">•</span>
                 <span class="nav-label">명상</span>
             </li>
             <li class="nav-item" data-page="stats">
-                <span class="nav-icon">📈</span>
+                <span class="nav-icon">•</span>
                 <span class="nav-label">통계</span>
             </li>
         </ul>
@@ -74,23 +74,23 @@
     <!-- Mobile Bottom Tab Bar -->
     <nav class="bottom-tab" id="bottomTab">
         <div class="tab-item active" data-page="dashboard">
-            <span class="tab-icon">📊</span>
+            <span class="tab-icon">홈</span>
             <span class="tab-label">홈</span>
         </div>
         <div class="tab-item" data-page="plan">
-            <span class="tab-icon">🗺️</span>
+            <span class="tab-icon">계획</span>
             <span class="tab-label">계획</span>
         </div>
         <div class="tab-item" data-page="today">
-            <span class="tab-icon">⚔️</span>
+            <span class="tab-icon">미션</span>
             <span class="tab-label">미션</span>
         </div>
         <div class="tab-item" data-page="meditation">
-            <span class="tab-icon">🧘</span>
+            <span class="tab-icon">명상</span>
             <span class="tab-label">명상</span>
         </div>
         <div class="tab-item" data-page="stats">
-            <span class="tab-icon">📈</span>
+            <span class="tab-icon">통계</span>
             <span class="tab-label">통계</span>
         </div>
     </nav>
@@ -104,6 +104,10 @@
                 <p class="page-subtitle" id="dashboardDate"></p>
             </div>
             <div class="dashboard-grid">
+                <div class="card card-today" id="todayCard">
+                    <div class="card-label">오늘 카드</div>
+                    <div id="todayCardContent"></div>
+                </div>
                 <div class="card card-level" id="levelCard">
                     <div class="card-glow"></div>
                     <div class="level-info">
@@ -118,7 +122,7 @@
                     </div>
                 </div>
                 <div class="card card-streak" id="streakCard">
-                    <div class="card-label">🔥 연속 달성</div>
+                    <div class="card-label">연속 달성</div>
                     <div class="streak-number" id="dashStreak">0</div>
                     <div class="streak-sub">일 연속</div>
                 </div>
@@ -128,7 +132,7 @@
                     <div class="progress-percent" id="progressPercent">0%</div>
                 </div>
                 <div class="card card-next" id="nextMissionCard">
-                    <div class="card-label">🎯 다음 미션</div>
+                    <div class="card-label">다음 미션</div>
                     <div class="next-mission-info" id="nextMissionInfo">
                         <p class="next-mission-empty">미션이 없습니다</p>
                     </div>
@@ -145,21 +149,21 @@
             <div class="plan-container">
                 <div class="plan-column">
                     <div class="plan-column-header">
-                        <h2>🏰 Boss Mission <span class="plan-period">월간</span></h2>
+                        <h2>🏰 보스 미션 <span class="plan-period">Boss Mission (월간)</span></h2>
                         <button class="btn-add" id="addBossMission">+ 추가</button>
                     </div>
                     <div class="plan-list" id="bossMissionList"></div>
                 </div>
                 <div class="plan-column">
                     <div class="plan-column-header">
-                        <h2>📖 Chapter Mission <span class="plan-period">주간</span></h2>
+                        <h2>📖 챕터 미션 <span class="plan-period">Chapter Mission (주간)</span></h2>
                         <button class="btn-add" id="addChapterMission">+ 추가</button>
                     </div>
                     <div class="plan-list" id="chapterMissionList"></div>
                 </div>
                 <div class="plan-column">
                     <div class="plan-column-header">
-                        <h2>⚡ Daily Quest <span class="plan-period">일간</span></h2>
+                        <h2>⚡ 데일리 퀘스트 <span class="plan-period">Daily Quest (일간)</span></h2>
                         <button class="btn-add" id="addDailyQuest">+ 추가</button>
                     </div>
                     <div class="plan-list" id="dailyQuestList"></div>
@@ -176,7 +180,7 @@
             <div class="today-container" id="todayMissionList">
                 <div class="empty-state">
                     <div class="empty-icon">⚔️</div>
-                    <p>오늘 수행할 Daily Quest가 없습니다.</p>
+                    <p>오늘 수행할 데일리 퀘스트가 없습니다.</p>
                     <button class="btn-primary" onclick="location.hash='#plan'">계획 페이지에서 미션 추가</button>
                 </div>
             </div>
@@ -217,7 +221,7 @@
                     </div>
                 </div>
                 <div class="meditation-stats-card card">
-                    <h3>🧘 명상 기록</h3>
+                    <h3>명상 기록</h3>
                     <div class="med-stat-row">
                         <span>총 명상 시간</span>
                         <strong id="medTotalTime">0분</strong>
@@ -235,7 +239,7 @@
             <!-- Meditation After Modal -->
             <div class="modal-overlay hidden" id="meditationAfterModal">
                 <div class="modal">
-                    <h2>🙏 명상 완료</h2>
+                    <h2>명상 완료</h2>
                     <p class="med-complete-duration" id="medCompleteDuration"></p>
                     <div class="focus-rating" id="focusRating">
                         <p>집중도 평가</p>
@@ -247,7 +251,7 @@
                             <span class="star" data-val="5">★</span>
                         </div>
                     </div>
-                    <textarea id="medMemo" class="med-memo" placeholder="마음 일기를 적어보세요..."></textarea>
+                    <textarea id="medMemo" class="med-memo" placeholder="명상 기록 한 줄(선택)을 적어보세요..."></textarea>
                     <button class="btn-primary" id="btnSaveMeditation">저장</button>
                 </div>
             </div>
@@ -261,15 +265,17 @@
             </div>
             <div class="stats-grid">
                 <div class="card stats-heatmap-card">
-                    <h3>📅 주간 달성률</h3>
+                    <h3>주간 달성률</h3>
                     <div class="heatmap" id="weeklyHeatmap"></div>
+                    <div id="weeklyStatsCta"></div>
                 </div>
                 <div class="card stats-chart-card">
-                    <h3>📈 월간 성장 그래프</h3>
+                    <h3>월간 성장 그래프</h3>
                     <canvas id="monthlyChart" width="600" height="250"></canvas>
+                    <div id="monthlyChartCta"></div>
                 </div>
                 <div class="card stats-meditation-card">
-                    <h3>🧘 명상 누적 통계</h3>
+                    <h3>명상 누적 통계</h3>
                     <div class="med-stats-detail" id="medStatsDetail"></div>
                 </div>
             </div>
@@ -292,9 +298,9 @@
                 <div class="form-group">
                     <label for="missionType">유형</label>
                     <select id="missionType">
-                        <option value="boss">🏰 Boss Mission (월간)</option>
-                        <option value="chapter">📖 Chapter Mission (주간)</option>
-                        <option value="daily">⚡ Daily Quest (일간)</option>
+                        <option value="boss">🏰 보스 미션 (월간)</option>
+                        <option value="chapter">📖 챕터 미션 (주간)</option>
+                        <option value="daily">⚡ 데일리 퀘스트 (일간)</option>
                     </select>
                 </div>
                 <div class="form-group" id="parentMissionGroup">
@@ -340,6 +346,15 @@
         </div>
     </div>
 
+    <div class="fab-wrap">
+        <button class="fab-main" id="quickFab">＋</button>
+        <div class="fab-menu hidden" id="quickFabMenu">
+            <button class="fab-action" data-action="add-daily">데일리 퀘스트 추가</button>
+            <button class="fab-action" data-action="start-meditation">명상 시작</button>
+            <button class="fab-action" data-action="add-record">기록 남기기</button>
+        </div>
+    </div>
+
     <!-- Level Up Overlay -->
     <div class="levelup-overlay hidden" id="levelUpOverlay">
         <div class="levelup-content">
@@ -355,14 +370,14 @@
     <!-- Onboarding -->
     <div class="modal-overlay hidden" id="onboardingModal">
         <div class="modal onboarding-modal">
-            <div class="onboarding-icon">🚀</div>
+            <div class="onboarding-icon"></div>
             <h2>Mission Life에 오신 걸 환영합니다!</h2>
             <p>습관 변화와 무의식 정화를 위한 여정을 시작하세요.</p>
             <ul class="onboarding-steps">
-                <li>🏰 월간 Boss Mission으로 큰 목표를 세우세요</li>
-                <li>📖 주간 Chapter로 단계를 나누세요</li>
-                <li>⚡ Daily Quest로 매일 실천하세요</li>
-                <li>🧘 명상으로 마음을 돌보세요</li>
+                <li>월간 보스 미션으로 큰 목표를 세우세요</li>
+                <li>주간 챕터로 단계를 나누세요</li>
+                <li>데일리 퀘스트로 매일 실천하세요</li>
+                <li>명상으로 마음을 돌보세요</li>
             </ul>
             <button class="btn-primary" id="onboardingStart">시작하기</button>
         </div>

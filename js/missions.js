@@ -7,25 +7,23 @@
 
 const Missions = {
     activeTimers: {},
+    timerStartedAt: {},
 
     init() {
         this.bindEvents();
     },
 
     bindEvents() {
-        // Plan page add buttons
         document.getElementById('addBossMission').addEventListener('click', () => this.openModal('boss'));
         document.getElementById('addChapterMission').addEventListener('click', () => this.openModal('chapter'));
         document.getElementById('addDailyQuest').addEventListener('click', () => this.openModal('daily'));
 
-        // Modal
         document.getElementById('missionModalClose').addEventListener('click', () => this.closeModal());
         document.getElementById('missionForm').addEventListener('submit', (e) => this.handleSubmit(e));
         document.getElementById('missionModal').addEventListener('click', (e) => {
             if (e.target.id === 'missionModal') this.closeModal();
         });
 
-        // Type change affects form visibility and parent options
         document.getElementById('missionType').addEventListener('change', (e) => {
             this.updateFormVisibility(e.target.value);
             this.populateParentOptions(e.target.value);
@@ -41,7 +39,6 @@ const Missions = {
         this.updateFormVisibility(type);
         this.populateParentOptions(type);
 
-        // Default repeat: Mon-Fri
         document.querySelectorAll('#repeatDays input').forEach((cb, i) => {
             cb.checked = (i >= 1 && i <= 5);
         });
@@ -145,7 +142,6 @@ const Missions = {
         Dashboard.render();
     },
 
-    // ===== PLAN VIEW =====
     renderPlan() {
         const missions = store.getMissions();
         const bossList = document.getElementById('bossMissionList');
@@ -156,32 +152,76 @@ const Missions = {
         chapterList.innerHTML = '';
         dailyList.innerHTML = '';
 
-        missions.filter(m => m.type === 'boss').forEach(m => bossList.appendChild(this._planCard(m, missions)));
-        missions.filter(m => m.type === 'chapter').forEach(m => {
-            const card = this._planCard(m, missions);
-            const parent = missions.find(p => p.id === m.parentId);
-            if (parent) {
-                const badge = document.createElement('div');
-                badge.style.cssText = 'font-size:11px;color:var(--text-muted);margin-top:4px;';
-                badge.textContent = `└ 🏰 ${parent.title}`;
-                card.querySelector('.plan-card-meta').after(badge);
-            }
-            chapterList.appendChild(card);
-        });
-        missions.filter(m => m.type === 'daily').forEach(m => {
-            const card = this._planCard(m, missions);
-            const parent = missions.find(p => p.id === m.parentId);
-            if (parent) {
-                const badge = document.createElement('div');
-                badge.style.cssText = 'font-size:11px;color:var(--text-muted);margin-top:4px;';
-                badge.textContent = `└ 📖 ${parent.title}`;
-                card.querySelector('.plan-card-meta').after(badge);
-            }
-            dailyList.appendChild(card);
-        });
+        const bosses = missions.filter(m => m.type === 'boss');
+        const chapters = missions.filter(m => m.type === 'chapter');
+        const dailies = missions.filter(m => m.type === 'daily');
+
+        if (bosses.length === 0) {
+            bossList.innerHTML = this._emptyPlanCard('월간 보스 미션이 없습니다', "예시: '2월: 루틴 안정화'", 'addBossMission');
+        } else {
+            bosses.forEach(m => {
+                const card = this._planCard(m, missions);
+                const splitBtn = document.createElement('button');
+                splitBtn.className = 'btn-split';
+                splitBtn.textContent = '이 보스 미션을 주간/일간으로 쪼개기';
+                splitBtn.addEventListener('click', () => {
+                    const go = confirm('챕터 미션을 먼저 추가할까요? (취소 시 데일리 추가)');
+                    this.openModal(go ? 'chapter' : 'daily');
+                    const parent = document.getElementById('parentMission');
+                    if (go) parent.value = m.id;
+                });
+                card.appendChild(splitBtn);
+                bossList.appendChild(card);
+            });
+        }
+
+        if (chapters.length === 0) {
+            chapterList.innerHTML = this._emptyPlanCard('주간 챕터 미션이 없습니다', "예시: '1주차: 아침 루틴 5일'", 'addChapterMission');
+        } else {
+            chapters.forEach(m => {
+                const card = this._planCard(m, missions);
+                const parent = missions.find(p => p.id === m.parentId);
+                if (parent) {
+                    const badge = document.createElement('div');
+                    badge.style.cssText = 'font-size:11px;color:var(--text-muted);margin-top:4px;';
+                    badge.textContent = `└ 🏰 ${parent.title}`;
+                    card.querySelector('.plan-card-meta').after(badge);
+                }
+                chapterList.appendChild(card);
+            });
+        }
+
+        if (dailies.length === 0) {
+            dailyList.innerHTML = this._emptyPlanCard('일간 데일리 퀘스트가 없습니다', "예시: '푸쉬업 20개'", 'addDailyQuest');
+        } else {
+            dailies.forEach(m => {
+                const card = this._planCard(m, missions);
+                const parent = missions.find(p => p.id === m.parentId);
+                if (parent) {
+                    const badge = document.createElement('div');
+                    badge.style.cssText = 'font-size:11px;color:var(--text-muted);margin-top:4px;';
+                    badge.textContent = `└ 📖 ${parent.title}`;
+                    card.querySelector('.plan-card-meta').after(badge);
+                }
+                dailyList.appendChild(card);
+            });
+        }
+  
+
+        this._bindEmptyPlanButtons();
     },
 
-    _planCard(mission, allMissions) {
+    _emptyPlanCard(title, example, buttonId) {
+        return `
+            <div class="plan-empty-card">
+                <p>${title} → +추가로 시작</p>
+                <p class="plan-empty-example">${example}</p>
+                <button class="btn-add" id="${buttonId}-empty">+ 추가</button>
+            </div>
+        `;
+    },
+
+    _planCard(mission) {
         const card = document.createElement('div');
         card.className = 'plan-card';
         const stars = '⭐'.repeat(mission.difficulty || 1);
@@ -206,6 +246,7 @@ const Missions = {
             if (confirm('이 미션을 삭제하시겠습니까?')) {
                 store.deleteMission(mission.id);
                 this.renderPlan();
+                this._bindEmptyPlanButtons();
                 this.renderToday();
                 Dashboard.render();
             }
@@ -214,13 +255,23 @@ const Missions = {
         return card;
     },
 
-    // ===== TODAY VIEW =====
+    _bindEmptyPlanButtons() {
+        const map = {
+            'addBossMission-empty': 'boss',
+            'addChapterMission-empty': 'chapter',
+            'addDailyQuest-empty': 'daily'
+        };
+        Object.entries(map).forEach(([id, type]) => {
+            const btn = document.getElementById(id);
+            if (btn) btn.addEventListener('click', () => this.openModal(type));
+        });
+    },
+
     renderToday() {
         const todayMissions = store.getTodayDailyMissions();
         const container = document.getElementById('todayMissionList');
         const today = store.today();
 
-        // Update date display
         const d = new Date();
         const days = ['일', '월', '화', '수', '목', '금', '토'];
         const dateEl = document.getElementById('todayDate');
@@ -230,27 +281,66 @@ const Missions = {
             container.innerHTML = `
                 <div class="empty-state">
                     <div class="empty-icon">⚔️</div>
-                    <p>오늘 수행할 Daily Quest가 없습니다.</p>
+                    <p>오늘 수행할 데일리 퀘스트가 없습니다.</p>
                     <button class="btn-primary" style="max-width:300px;margin:16px auto 0;" id="goToPlan">계획 페이지에서 미션 추가</button>
+                    <div class="quick-add-inline">
+                        <input id="todayQuickInput" placeholder="예: 푸쉬업 20개" />
+                        <button class="btn-add" id="todayQuickAddBtn">추가</button>
+                    </div>
                 </div>
             `;
             const btn = document.getElementById('goToPlan');
             if (btn) btn.addEventListener('click', () => { location.hash = '#plan'; });
+            const quickBtn = document.getElementById('todayQuickAddBtn');
+            if (quickBtn) quickBtn.addEventListener('click', () => this.quickAddTodayMission());
             return;
         }
 
-        // Sort by time
         todayMissions.sort((a, b) => {
             if (!a.scheduledTime) return 1;
             if (!b.scheduledTime) return -1;
             return a.scheduledTime.localeCompare(b.scheduledTime);
         });
 
-        container.innerHTML = '';
+        container.innerHTML = `
+            <div class="quick-add-inline">
+                <input id="todayQuickInput" placeholder="빠른 추가: 푸쉬업 20개" />
+                <button class="btn-add" id="todayQuickAddBtn">추가</button>
+            </div>
+        `;
+        const quickBtn = document.getElementById('todayQuickAddBtn');
+        if (quickBtn) quickBtn.addEventListener('click', () => this.quickAddTodayMission());
+
         todayMissions.forEach(mission => {
             const isCompleted = mission.completedDates && mission.completedDates.includes(today);
             container.appendChild(this._missionCard(mission, isCompleted));
         });
+    },
+
+    quickAddTodayMission(manualTitle) {
+        const input = document.getElementById('todayQuickInput');
+        const title = (manualTitle || input?.value || '').trim();
+        if (!title) return;
+
+        const now = new Date();
+        const hh = String(now.getHours()).padStart(2, '0');
+        const mm = String(now.getMinutes()).padStart(2, '0');
+        store.addMission({
+            title,
+            type: 'daily',
+            difficulty: 1,
+            estimatedMinutes: 10,
+            parentId: null,
+            scheduledTime: `${hh}:${mm}`,
+            repeatDays: [now.getDay()],
+            expReward: Gamification.calcMissionExp(1),
+        });
+
+        if (input) input.value = '';
+        this.renderPlan();
+        this._bindEmptyPlanButtons();
+        this.renderToday();
+        Dashboard.render();
     },
 
     _missionCard(mission, isCompleted) {
@@ -271,7 +361,7 @@ const Missions = {
                     <span class="exp-badge">+${exp} EXP</span>
                     <span>🔥 ${mission.streak || 0}일 연속</span>
                 </div>
-                <div class="mission-card-timer" id="timer-${mission.id}"></div>
+                <div class="mission-card-timer" id="timer-${mission.id}">${hasTimer ? `⏱ ${this.getTimerText(mission.id)}` : ''}</div>
             </div>
             <div class="mission-card-actions">
                 ${isCompleted
@@ -294,23 +384,41 @@ const Missions = {
         return card;
     },
 
+    getTimerText(missionId) {
+        const start = this.timerStartedAt[missionId];
+        if (!start) return '00:00';
+        const elapsed = Math.floor((Date.now() - start) / 1000);
+        const m = Math.floor(elapsed / 60);
+        const s = elapsed % 60;
+        return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+    },
+
     startTimer(missionId) {
-        const startTime = Date.now();
+        this.timerStartedAt[missionId] = Date.now();
         this.activeTimers[missionId] = setInterval(() => {
-            const elapsed = Math.floor((Date.now() - startTime) / 1000);
-            const m = Math.floor(elapsed / 60);
-            const s = elapsed % 60;
             const el = document.getElementById(`timer-${missionId}`);
-            if (el) el.textContent = `⏱ ${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+            if (el) el.textContent = `⏱ ${this.getTimerText(missionId)}`;
+            if (App.currentPage === 'dashboard') Dashboard.render();
         }, 1000);
         this.renderToday();
+        Dashboard.render();
     },
 
     _completeMission(missionId) {
         if (this.activeTimers[missionId]) {
             clearInterval(this.activeTimers[missionId]);
             delete this.activeTimers[missionId];
+            delete this.timerStartedAt[missionId];
         }
+
+        const note = prompt('완료 메모 (선택)');
+        if (note && note.trim()) {
+            const mission = store.getMission(missionId);
+            const logs = mission.completionNotes || [];
+            logs.push({ date: store.today(), note: note.trim() });
+            store.updateMission(missionId, { completionNotes: logs });
+        }
+
         Gamification.completeMission(missionId);
         this.renderToday();
         Dashboard.render();

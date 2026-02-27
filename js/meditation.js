@@ -129,7 +129,7 @@ const Meditation = {
         // Show after modal
         const min = Math.floor(this.elapsed / 60);
         const sec = this.elapsed % 60;
-        document.getElementById('medCompleteDuration').textContent = `${min}분 ${sec}초 명상했어요 🙏`;
+        document.getElementById('medCompleteDuration').textContent = `${min}분 ${sec}초 명상 완료`;
         this.focusRating = 0;
         this.updateStars();
         document.getElementById('medMemo').value = '';
@@ -164,6 +164,23 @@ const Meditation = {
         else if (totalMin >= 60) profile.meditationLevel = 2;
         else profile.meditationLevel = 1;
         store.saveProfile(profile);
+
+
+
+        // Auto-complete linked daily quest (e.g., 명상 5분)
+        const todayKey = store.today();
+        const missions = store.getTodayDailyMissions();
+        const target = missions.find(m => {
+            if (m.completedDates && m.completedDates.includes(todayKey)) return false;
+            const t = (m.title || '').toLowerCase();
+            const minMatch = t.match(/(\d+)\s*분/);
+            const needMin = minMatch ? parseInt(minMatch[1]) : 0;
+            const isMeditationMission = t.includes('명상') || t.includes('meditation');
+            return isMeditationMission && (!needMin || this.elapsed >= needMin * 60);
+        });
+        if (target) {
+            Gamification.completeMission(target.id);
+        }
 
         // Award EXP
         const medExp = Math.max(5, Math.round(this.elapsed / 12));

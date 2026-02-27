@@ -1639,3 +1639,265 @@ body {
         padding: 16px 12px 80px;
     }
 }
+.card-today {
+    grid-column: span 3;
+}
+
+.today-active-session {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 12px;
+    border: 1px solid rgba(0, 229, 160, 0.3);
+    border-radius: 10px;
+    color: var(--accent-secondary);
+    margin-bottom: 12px;
+    font-size: 12px;
+}
+
+.today-card-section h4 {
+    font-size: 13px;
+    margin-bottom: 8px;
+}
+
+.today-quest-list {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.today-quest-item {
+    display: flex;
+    gap: 8px;
+    font-size: 13px;
+    color: var(--text-secondary);
+}
+
+.today-quest-item.done span {
+    text-decoration: line-through;
+    color: var(--text-muted);
+}
+
+.today-card-actions {
+    display: flex;
+    gap: 8px;
+    margin-top: 12px;
+    flex-wrap: wrap;
+}
+
+.today-card-status,
+.today-card-empty {
+    margin-top: 8px;
+    font-size: 12px;
+    color: var(--text-muted);
+}
+
+.progress-percent.is-empty {
+    font-size: 16px;
+    background: none;
+    -webkit-text-fill-color: var(--text-muted);
+    color: var(--text-muted);
+}
+
+.plan-empty-card {
+    border: 1px dashed var(--border-color);
+    border-radius: var(--radius-md);
+    padding: 16px;
+    color: var(--text-secondary);
+    font-size: 13px;
+}
+
+.plan-empty-example {
+    margin: 8px 0 12px;
+    color: var(--text-muted);
+    font-size: 12px;
+}
+
+.btn-split {
+    margin-top: 10px;
+    width: 100%;
+    padding: 8px 10px;
+    border-radius: 10px;
+    border: 1px solid rgba(200, 255, 0, 0.2);
+    background: rgba(200, 255, 0, 0.05);
+    color: var(--accent-primary);
+    font-size: 12px;
+    cursor: pointer;
+}
+
+.quick-add-inline {
+    display: flex;
+    gap: 8px;
+    max-width: 420px;
+    margin: 14px auto 0;
+}
+
+.quick-add-inline input {
+    flex: 1;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid var(--border-color);
+    border-radius: 10px;
+    color: var(--text-primary);
+    padding: 10px 12px;
+}
+
+.heatmap-rate {
+    font-size: 10px;
+    color: var(--text-muted);
+}
+
+.stats-empty-cta {
+    margin-top: 12px;
+    border: 1px dashed var(--border-color);
+    border-radius: 12px;
+    padding: 12px;
+}
+
+.fab-wrap {
+    position: fixed;
+    right: 22px;
+    bottom: 24px;
+    z-index: 120;
+}
+
+.fab-main {
+    width: 54px;
+    height: 54px;
+    border-radius: 50%;
+    border: none;
+    background: var(--grad-primary);
+    color: #050505;
+    font-size: 28px;
+    font-weight: 800;
+    cursor: pointer;
+}
+
+.fab-menu {
+    position: absolute;
+    right: 0;
+    bottom: 62px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.fab-action {
+    padding: 10px 12px;
+    border-radius: 10px;
+    border: 1px solid var(--border-color);
+    background: #101010;
+    color: var(--text-primary);
+    cursor: pointer;
+    white-space: nowrap;
+}
+
+/* ===== 2026 polish pass: premium neutral UI ===== */
+:root {
+    --bg-primary: #0f1115;
+    --bg-secondary: #151922;
+    --bg-card: rgba(255, 255, 255, 0.04);
+    --bg-card-hover: rgba(255, 255, 255, 0.07);
+    --bg-sidebar: #0d1017;
+    --accent-primary: #7c8cff;
+    --accent-secondary: #63d2ff;
+    --accent-green: #2dd4bf;
+    --text-primary: #f3f5fb;
+    --text-secondary: #b5bdd1;
+    --text-muted: #8a93a9;
+    --border-color: rgba(255, 255, 255, 0.09);
+    --border-active: rgba(124, 140, 255, 0.35);
+    --grad-primary: linear-gradient(135deg, #7c8cff 0%, #63d2ff 100%);
+}
+
+body::after { opacity: .2; }
+.logo-text {
+    text-transform: none;
+    letter-spacing: -0.2px;
+    font-weight: 700;
+}
+.logo-icon {
+    width: 28px;
+    height: 28px;
+    border-radius: 8px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(124,140,255,.2);
+    font-size: 11px;
+    font-weight: 700;
+    color: #dbe2ff;
+}
+.nav-item { border-radius: 10px; margin: 2px 10px; padding: 12px 14px; }
+.nav-item.active::before { display:none; }
+.nav-item.active { border: 1px solid var(--border-active); }
+.nav-icon { font-size: 20px; line-height: 0; color: transparent; }
+.main-content { padding-top: 28px; }
+.page-header h1 { font-size: 34px; letter-spacing: -0.6px; }
+.page-subtitle { color: var(--text-secondary); font-size: 14px; }
+
+.card {
+    border-radius: 18px;
+    border: 1px solid var(--border-color);
+    box-shadow: 0 10px 40px rgba(7, 10, 16, 0.35);
+}
+.card h3, .card-label {
+    text-transform: none;
+    letter-spacing: 0;
+    color: var(--text-secondary);
+    font-size: 12px;
+}
+.level-number, .streak-number, .progress-percent { -webkit-text-fill-color: unset; color: var(--text-primary); background: none; }
+.progress-percent { font-size: 32px; font-weight: 800; }
+.next-mission-empty { font-size: 14px; }
+
+.plan-column-header h2 { font-size: 15px; }
+.plan-period { text-transform:none; font-size: 11px; }
+.plan-card, .plan-empty-card { border-radius: 14px; }
+.plan-card-title { font-size: 14px; }
+.btn-add, .btn-primary, .fab-action, .btn-split {
+    text-transform: none;
+    letter-spacing: 0;
+    border-radius: 10px;
+    font-weight: 600;
+}
+.btn-primary { padding: 11px 20px; }
+
+.mission-card { border-radius: 14px; }
+.mission-time-badge { color: #9fb4ff; }
+.quick-add-inline input,
+.med-memo,
+.form-group input,
+.form-group select {
+    border-radius: 10px;
+    background: rgba(255,255,255,0.04);
+}
+
+.timer-display { font-size: 52px; font-weight: 700; }
+.type-btn.active { background: rgba(124,140,255,.16); border-color: #8da0ff; color: #dce4ff; }
+
+.heatmap-cell {
+    border: 1px solid rgba(255,255,255,.06);
+    border-radius: 10px;
+    cursor: pointer;
+}
+.heatmap-day { font-weight: 600; }
+.heatmap-rate { font-size: 11px; }
+
+.fab-main {
+    box-shadow: 0 14px 28px rgba(41, 55, 125, 0.45);
+    border-radius: 16px;
+    width: 50px;
+    height: 50px;
+    font-size: 26px;
+}
+.fab-menu { min-width: 170px; }
+.fab-action { background: #1a1f2b; color: #e6ecff; }
+
+@media (max-width: 768px) {
+  .tab-icon { font-size: 11px; }
+  .tab-label { display:none; }
+  .card-today { grid-column: span 2; }
+}
+@media (max-width: 480px) {
+  .card-today { grid-column: span 1; }
+}

@@ -11,12 +11,95 @@ const Dashboard = {
     },
 
     render() {
+        this.renderTodayCard();
         this.renderLevel();
         this.renderStreak();
         this.renderProgress();
         this.renderNextMission();
         this.renderDate();
         Gamification.updateSidebarLevel();
+    },
+
+    renderTodayCard() {
+        const wrap = document.getElementById('todayCardContent');
+        if (!wrap) return;
+
+        const today = store.today();
+        const todayMissions = store.getTodayDailyMissions();
+        const top3 = todayMissions.slice(0, 3);
+        const completed = todayMissions.filter(m => m.completedDates && m.completedDates.includes(today)).length;
+        const activeMissionTimer = this._findActiveMissionTimer();
+        const meditationState = Meditation && Meditation.isRunning
+            ? {
+                type: 'meditation',
+                label: `명상 ${Meditation.isPaused ? '일시정지' : '진행 중'}`,
+                time: this._formatSeconds(Meditation.elapsed || 0)
+            }
+            : null;
+        const activeTop = activeMissionTimer || meditationState;
+
+        const checklistHtml = top3.length > 0
+            ? top3.map(m => {
+                const checked = m.completedDates && m.completedDates.includes(today);
+                return `
+                    <label class="today-quest-item ${checked ? 'done' : ''}">
+                        <input type="checkbox" disabled ${checked ? 'checked' : ''}>
+                        <span>${m.title}</span>
+                    </label>
+                `;
+            }).join('')
+            : '<p class="today-card-empty">오늘 데일리 퀘스트가 없습니다.</p>';
+
+        wrap.innerHTML = `
+            ${activeTop ? `
+                <div class="today-active-session">
+                    <strong>${activeTop.label}</strong>
+                    <span>${activeTop.time}</span>
+                </div>
+            ` : ''}
+            <div class="today-card-section">
+                <h4>오늘의 데일리 퀘스트 3개</h4>
+                <div class="today-quest-list">${checklistHtml}</div>
+                <div class="today-card-status">완료 ${completed}/${todayMissions.length}</div>
+            </div>
+            <div class="today-card-actions">
+                <button class="btn-add" id="todayCardAddMission">오늘 미션 추가</button>
+                <button class="btn-add" id="todayCardMeditate">명상 시작</button>
+            </div>
+        `;
+
+        const addBtn = document.getElementById('todayCardAddMission');
+        const medBtn = document.getElementById('todayCardMeditate');
+        if (addBtn) addBtn.addEventListener('click', () => {
+            location.hash = '#plan';
+            Missions.openModal('daily');
+        });
+        if (medBtn) medBtn.addEventListener('click', () => {
+            location.hash = '#meditation';
+        });
+    },
+
+    _findActiveMissionTimer() {
+        if (!window.Missions || !Missions.activeTimers) return null;
+        const ids = Object.keys(Missions.activeTimers);
+        if (ids.length === 0) return null;
+
+        const runningId = ids[0];
+        const mission = store.getMission(runningId);
+        if (!mission) return null;
+
+        const timerEl = document.getElementById(`timer-${runningId}`);
+        return {
+            type: 'mission',
+            label: `${mission.title} 진행 중`,
+            time: timerEl?.textContent?.replace('⏱ ', '') || '00:00'
+        };
+    },
+
+    _formatSeconds(total) {
+        const m = Math.floor(total / 60);
+        const s = total % 60;
+        return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
     },
 
     renderLevel() {
@@ -49,11 +132,12 @@ const Dashboard = {
         const completed = todayMissions.filter(m => m.completedDates && m.completedDates.includes(today)).length;
         const percent = total > 0 ? Math.round((completed / total) * 100) : 0;
 
-        // Update text
         const percentEl = document.getElementById('progressPercent');
-        if (percentEl) percentEl.textContent = `${percent}%`;
+        if (percentEl) {
+            percentEl.textContent = total > 0 ? `${percent}%` : '오늘 미션 없음';
+            percentEl.classList.toggle('is-empty', total === 0);
+        }
 
-        // Draw canvas
         const canvas = document.getElementById('progressCanvas');
         if (!canvas) return;
         const ctx = canvas.getContext('2d');
@@ -67,14 +151,12 @@ const Dashboard = {
         const cx = size / 2, cy = size / 2, radius = 52, lineWidth = 10;
         ctx.clearRect(0, 0, size, size);
 
-        // Background circle
         ctx.beginPath();
         ctx.arc(cx, cy, radius, 0, Math.PI * 2);
         ctx.strokeStyle = 'rgba(124, 92, 252, 0.15)';
         ctx.lineWidth = lineWidth;
         ctx.stroke();
 
-        // Progress arc
         if (percent > 0) {
             const startAngle = -Math.PI / 2;
             const endAngle = startAngle + (Math.PI * 2 * percent / 100);
@@ -86,11 +168,10 @@ const Dashboard = {
             ctx.stroke();
         }
 
-        // Center text
         ctx.fillStyle = '#e8e8ff';
         ctx.font = 'bold 11px Inter';
         ctx.textAlign = 'center';
-        ctx.fillText(`${completed}/${total} 완료`, cx, cy + 4);
+        ctx.fillText(total > 0 ? `${completed}/${total} 완료` : '오늘 미션 없음', cx, cy + 4);
     },
 
     renderNextMission() {
@@ -100,12 +181,16 @@ const Dashboard = {
         const info = document.getElementById('nextMissionInfo');
         if (!info) return;
 
-        if (pending.length === 0) {
-            info.innerHTML = `<p class="next-mission-empty" style="color:var(--accent-green);">모든 미션을 완료했어요! 🎉</p>`;
+        if (todayMissions.length === 0) {
+            info.innerHTML = `<p class="next-mission-empty">다음 미션: 오늘 미션이 없습니다.</p>`;
             return;
         }
 
-        // Find next by scheduled time
+        if (pending.length === 0) {
+            info.innerHTML = `<p class="next-mission-empty" style="color:var(--accent-green);">다음 미션: 오늘 미션을 모두 완료했습니다.</p>`;
+            return;
+        }
+
         const now = new Date();
         const currentTime = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
         const upcoming = pending.filter(m => m.scheduledTime && m.scheduledTime >= currentTime)
@@ -114,7 +199,6 @@ const Dashboard = {
 
         info.innerHTML = `
             <div style="display:flex;align-items:center;gap:12px;">
-                <div style="font-size:28px;">⚡</div>
                 <div>
                     <div style="font-weight:700;font-size:15px;">${next.title}</div>
                     <div style="font-size:12px;color:var(--text-muted);">${next.scheduledTime || '미정'} · +${next.expReward || 0} EXP</div>
@@ -132,7 +216,6 @@ const Dashboard = {
         if (el) el.textContent = dateStr;
     },
 
-    // ===== STATS PAGE =====
     renderStats() {
         this.renderWeeklyHeatmap();
         this.renderMonthlyChart();
@@ -144,21 +227,23 @@ const Dashboard = {
         if (!container) return;
         container.innerHTML = '';
 
+        const cta = document.getElementById('weeklyStatsCta');
+
         const today = new Date();
         const dayOfWeek = today.getDay();
         const dayNames = ['일', '월', '화', '수', '목', '금', '토'];
 
-        // Start from Monday
         const monday = new Date(today);
         const diff = dayOfWeek === 0 ? -6 : 1 - dayOfWeek;
         monday.setDate(today.getDate() + diff);
+
+        let hasAnyData = false;
 
         for (let i = 0; i < 7; i++) {
             const date = new Date(monday);
             date.setDate(monday.getDate() + i);
             const dateStr = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
 
-            // Get missions for that day
             const missions = store.getMissions();
             const dayNum = date.getDay();
             const dailyForDay = missions.filter(m => {
@@ -170,6 +255,8 @@ const Dashboard = {
             const total = dailyForDay.length;
             const rate = total > 0 ? completed / total : 0;
 
+            if (total > 0 || completed > 0) hasAnyData = true;
+
             let level = 0;
             if (rate >= 1) level = 4;
             else if (rate >= 0.8) level = 3;
@@ -177,14 +264,39 @@ const Dashboard = {
             else if (rate > 0) level = 1;
 
             const isToday = dateStr === store.today();
-            const cell = document.createElement('div');
+            const cell = document.createElement('button');
             cell.className = `heatmap-cell level-${level}`;
+            cell.type = 'button';
             if (isToday) cell.style.boxShadow = '0 0 0 2px var(--accent-primary)';
             cell.innerHTML = `
                 <span class="heatmap-day">${dayNames[(i + 1) % 7]}</span>
                 <span class="heatmap-date">${date.getDate()}</span>
+                <span class="heatmap-rate">${total > 0 ? `${completed}/${total}` : '미션 없음'}</span>
             `;
+            cell.addEventListener('click', () => {
+                location.hash = '#today';
+            });
             container.appendChild(cell);
+        }
+
+        if (cta) {
+            cta.innerHTML = hasAnyData ? '' : `
+                <div class="stats-empty-cta">
+                    <p>이번 주 첫 기록을 만들어보세요.</p>
+                    <div class="today-card-actions">
+                        <button class="btn-add" id="weeklyAddMission">오늘 미션 추가</button>
+                        <button class="btn-add" id="weeklyStartMeditation">명상 시작</button>
+                    </div>
+                </div>
+            `;
+
+            const addBtn = document.getElementById('weeklyAddMission');
+            const medBtn = document.getElementById('weeklyStartMeditation');
+            if (addBtn) addBtn.addEventListener('click', () => {
+                location.hash = '#plan';
+                Missions.openModal('daily');
+            });
+            if (medBtn) medBtn.addEventListener('click', () => location.hash = '#meditation');
         }
     },
 
@@ -201,7 +313,6 @@ const Dashboard = {
         const height = 250;
         ctx.clearRect(0, 0, width, height);
 
-        // Get last 30 days
         const today = new Date();
         const data = [];
         for (let i = 29; i >= 0; i--) {
@@ -218,14 +329,34 @@ const Dashboard = {
             const completed = dailyForDay.filter(m => m.completedDates && m.completedDates.includes(dateStr)).length;
             const total = dailyForDay.length;
             const rate = total > 0 ? Math.round((completed / total) * 100) : 0;
-            data.push({ date: d.getDate(), rate });
+            data.push({ date: d.getDate(), rate, total, completed });
+        }
+
+        const cta = document.getElementById('monthlyChartCta');
+        const hasData = data.some(d => d.total > 0 || d.completed > 0);
+        if (cta) {
+            cta.innerHTML = hasData ? '' : `
+                <div class="stats-empty-cta">
+                    <p>이번 주 첫 기록을 만들어보세요.</p>
+                    <div class="today-card-actions">
+                        <button class="btn-add" id="monthlyAddMission">오늘 미션 추가</button>
+                        <button class="btn-add" id="monthlyStartMeditation">명상 시작</button>
+                    </div>
+                </div>
+            `;
+            const addBtn = document.getElementById('monthlyAddMission');
+            const medBtn = document.getElementById('monthlyStartMeditation');
+            if (addBtn) addBtn.addEventListener('click', () => {
+                location.hash = '#plan';
+                Missions.openModal('daily');
+            });
+            if (medBtn) medBtn.addEventListener('click', () => location.hash = '#meditation');
         }
 
         const pad = { top: 20, right: 20, bottom: 30, left: 40 };
         const cw = width - pad.left - pad.right;
         const ch = height - pad.top - pad.bottom;
 
-        // Grid
         ctx.strokeStyle = 'rgba(124,92,252,0.1)';
         ctx.lineWidth = 1;
         for (let i = 0; i <= 4; i++) {
@@ -252,7 +383,6 @@ const Dashboard = {
             });
             ctx.stroke();
 
-            // Fill
             const gradient = ctx.createLinearGradient(0, pad.top, 0, height - pad.bottom);
             gradient.addColorStop(0, 'rgba(124,92,252,0.15)');
             gradient.addColorStop(1, 'rgba(124,92,252,0)');
@@ -262,7 +392,6 @@ const Dashboard = {
             ctx.fillStyle = gradient;
             ctx.fill();
 
-            // Points
             data.forEach((d, i) => {
                 if (d.rate > 0) {
                     const x = pad.left + (i / (data.length - 1)) * cw;
@@ -275,7 +404,6 @@ const Dashboard = {
             });
         }
 
-        // X-axis
         ctx.fillStyle = '#5a5a7a';
         ctx.font = '11px Inter';
         ctx.textAlign = 'center';
